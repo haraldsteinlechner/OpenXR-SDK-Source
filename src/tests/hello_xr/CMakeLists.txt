@@ -28,6 +28,8 @@ set(LOCAL_HEADERS
     pch.h
     platformdata.h
     platformplugin.h
+	simulatedLayer.h
+	stb_image_write.h
 )
 set(LOCAL_SOURCE
     d3d_common.cpp
@@ -46,6 +48,7 @@ set(LOCAL_SOURCE
     platformplugin_factory.cpp
     platformplugin_posix.cpp
     platformplugin_win32.cpp
+	simulatedLayer.cpp
 )
 set(VULKAN_SHADERS vulkan_shaders/frag.glsl vulkan_shaders/vert.glsl)
 

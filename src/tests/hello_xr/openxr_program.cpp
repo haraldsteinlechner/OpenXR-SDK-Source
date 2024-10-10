@@ -10,6 +10,7 @@
 #include "platformplugin.h"
 #include "graphicsplugin.h"
 #include "openxr_program.h"
+#include "simulatedLayer.h"
 #include <common/xr_linear.h>
 #include <array>
 #include <cmath>
@@ -94,6 +95,7 @@ struct OpenXrProgram : IOpenXrProgram {
         : m_options(options),
           m_platformPlugin(platformPlugin),
           m_graphicsPlugin(graphicsPlugin),
+          m_interceptor(),
           m_acceptableBlendModes{XR_ENVIRONMENT_BLEND_MODE_OPAQUE, XR_ENVIRONMENT_BLEND_MODE_ADDITIVE,
                                  XR_ENVIRONMENT_BLEND_MODE_ALPHA_BLEND} {}
 
@@ -657,7 +659,7 @@ struct OpenXrProgram : IOpenXrProgram {
                 Swapchain swapchain;
                 swapchain.width = swapchainCreateInfo.width;
                 swapchain.height = swapchainCreateInfo.height;
-                CHECK_XRCMD(xrCreateSwapchain(m_session, &swapchainCreateInfo, &swapchain.handle));
+                CHECK_XRCMD(m_interceptor.xrCreateSwapchain(m_session, &swapchainCreateInfo, &swapchain.handle));
 
                 m_swapchains.push_back(swapchain);
 
@@ -963,7 +965,7 @@ struct OpenXrProgram : IOpenXrProgram {
             XrSwapchainImageAcquireInfo acquireInfo{XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO};
 
             uint32_t swapchainImageIndex;
-            CHECK_XRCMD(xrAcquireSwapchainImage(viewSwapchain.handle, &acquireInfo, &swapchainImageIndex));
+            CHECK_XRCMD(m_interceptor.xrAcquireSwapchainImage(viewSwapchain.handle, &acquireInfo, &swapchainImageIndex));
 
             XrSwapchainImageWaitInfo waitInfo{XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO};
             waitInfo.timeout = XR_INFINITE_DURATION;
@@ -980,7 +982,7 @@ struct OpenXrProgram : IOpenXrProgram {
             m_graphicsPlugin->RenderView(projectionLayerViews[i], swapchainImage, m_colorSwapchainFormat, cubes);
 
             XrSwapchainImageReleaseInfo releaseInfo{XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO};
-            CHECK_XRCMD(xrReleaseSwapchainImage(viewSwapchain.handle, &releaseInfo));
+            CHECK_XRCMD(m_interceptor.xrReleaseSwapchainImage(viewSwapchain.handle, &releaseInfo));
         }
 
         layer.space = m_appSpace;
@@ -1018,6 +1020,8 @@ struct OpenXrProgram : IOpenXrProgram {
     InputState m_input;
 
     const std::set<XrEnvironmentBlendMode> m_acceptableBlendModes;
+
+    GLInterceptor m_interceptor;
 };
 }  // namespace
 
