@@ -95,9 +95,11 @@ struct OpenXrProgram : IOpenXrProgram {
         : m_options(options),
           m_platformPlugin(platformPlugin),
           m_graphicsPlugin(graphicsPlugin),
-          m_interceptor(),
+          m_interceptor(PureWebsocket),
           m_acceptableBlendModes{XR_ENVIRONMENT_BLEND_MODE_OPAQUE, XR_ENVIRONMENT_BLEND_MODE_ADDITIVE,
-                                 XR_ENVIRONMENT_BLEND_MODE_ALPHA_BLEND} {}
+                                 XR_ENVIRONMENT_BLEND_MODE_ALPHA_BLEND} {
+        m_interceptor.startWebServer();
+    }
 
     ~OpenXrProgram() override {
         if (m_input.actionSet != XR_NULL_HANDLE) {
@@ -572,6 +574,8 @@ struct OpenXrProgram : IOpenXrProgram {
             XrReferenceSpaceCreateInfo referenceSpaceCreateInfo = GetXrReferenceSpaceCreateInfo(m_options->AppSpace);
             CHECK_XRCMD(xrCreateReferenceSpace(m_session, &referenceSpaceCreateInfo, &m_appSpace));
         }
+
+       
     }
 
     void CreateSwapchains() override {
@@ -888,7 +892,7 @@ struct OpenXrProgram : IOpenXrProgram {
         frameEndInfo.environmentBlendMode = m_options->Parsed.EnvironmentBlendMode;
         frameEndInfo.layerCount = (uint32_t)layers.size();
         frameEndInfo.layers = layers.data();
-        CHECK_XRCMD(xrEndFrame(m_session, &frameEndInfo));
+        CHECK_XRCMD(m_interceptor.xrEndFrame(m_session, &frameEndInfo));
     }
 
     bool RenderLayer(XrTime predictedDisplayTime, std::vector<XrCompositionLayerProjectionView>& projectionLayerViews,

@@ -124,6 +124,7 @@ endif()
 find_package(Threads REQUIRED)
 find_package(JsonCpp)
 
+
 ### All options defined here
 option(BUILD_LOADER "Build loader" ON)
 option(BUILD_ALL_EXTENSIONS "Build loader and layers with all extensions" OFF)

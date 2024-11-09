@@ -94,20 +94,27 @@ else()
     add_executable(hello_xr ${LOCAL_SOURCE} ${LOCAL_HEADERS} ${VULKAN_SHADERS})
 endif()
 
-if(APPLE)
+#if(APPLE)
     # use C++17 since there is a dependency on metal-cpp
-    target_compile_features(hello_xr PUBLIC cxx_std_17)
-endif()
+    #target_compile_features(hello_xr PUBLIC cxx_std_17)
+#endif()
+
+target_compile_features(hello_xr PUBLIC cxx_std_17)
 
 set_target_properties(hello_xr PROPERTIES FOLDER ${SAMPLES_FOLDER})
 source_group("Headers" FILES ${LOCAL_HEADERS})
 source_group("Shaders" FILES ${VULKAN_SHADERS})
+   
+find_package(Boost CONFIG REQUIRED COMPONENTS beast)
+target_link_libraries(hello_xr PRIVATE Boost::beast)
 
 target_link_libraries(hello_xr PRIVATE OpenXR::openxr_loader)
 
 compile_glsl(run_hello_xr_glsl_compiles ${VULKAN_SHADERS})
-
+ 
+ 
 add_dependencies(hello_xr run_hello_xr_glsl_compiles)
+
 
 target_include_directories(
     hello_xr
@@ -121,7 +128,7 @@ target_include_directories(
         # For including compiled shaders
         "${CMAKE_CURRENT_BINARY_DIR}"
 )
-
+  
 target_link_libraries(hello_xr PRIVATE OpenXR::openxr_loader)
 
 if(GLSLANG_VALIDATOR AND NOT GLSLC_COMMAND)
